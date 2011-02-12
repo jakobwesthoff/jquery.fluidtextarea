@@ -22,20 +22,20 @@
 
 (function( $, jQuery ) {
     /**
-     * Representation of a cloned textarea.
+     * Representation of a shadowed textarea.
      *
-     * The clone will inherit all the visual styles of the textarea, except
+     * The shadow will inherit all the visual styles of the textarea, except
      * its height definition. This way it is possible to determine the height
      * the text currently in the textareas buffer does occupy.
      *
      * @constructor
      * @param jQueryObject source
      */
-    function ClonedTextArea( source ) {
+    function ShadowedTextArea( source ) {
         var height;
 
         /**
-         * Source element used for the generation of the clone
+         * Source element used for the generation of the shadow
          * 
          * @private
          * @type jQueryObject
@@ -51,7 +51,7 @@
         this.sourceContent_ = source.val();
 
         /**
-         * Height of the cloned textarea
+         * Height of the shadowed textarea
          *
          * @private
          * @type number
@@ -59,20 +59,20 @@
         this.sourceHeight_ = source.height();
 
         /**
-         * Cloned element
+         * shadow element
          *
          * @private
          * @type jQueryObject
          */
-        this.clone_ = this.createClone_( source );
+        this.shadow_ = this.createShadow_( source );
 
         this.monitorTextArea_( source );
     }
 
     /**
-     * Create a clone of the given textarea and return it
+     * Create a shadow of the given textarea and return it
      *
-     * The clone will be a div element encapsulated into a jquery set.
+     * The shadow will be a textarea element encapsulated into a jquery set.
      * It will inherit all the styles of the source element except it's height
      * restricting properties.
      * 
@@ -80,13 +80,13 @@
      * @param jQueryObject source
      * @returns jQueryObject
      */
-    ClonedTextArea.prototype.createClone_ = function( source ) {
-        var clone = $( "<div />" );
-        this.transferStyles_( source, clone );
+    ShadowedTextArea.prototype.createShadow_ = function( source ) {
+        var shadow = $( "<div />" );
+        this.transferStyles_( source, shadow );
 
-        this.transferText_( source, clone );
+        this.transferText_( source, shadow );
         
-        return clone;
+        return shadow;
     };
 
     /**
@@ -99,17 +99,9 @@
      * @param jQueryObject source
      * @param jQueryObject target
      */
-    ClonedTextArea.prototype.transferStyles_ = function( source, target ) {
+    ShadowedTextArea.prototype.transferStyles_ = function( source, target ) {
         $.each(
             [
-                'border-bottom-style',
-                'border-bottom-width',
-                'border-left-style',
-                'border-left-width',
-                'border-right-style',
-                'border-right-width',
-                'border-top-style',
-                'border-top-width',
                 'direction',
                 'font-family',
                 'font-size',
@@ -142,60 +134,30 @@
     };
 
     /**
-     * Transfer the text content from the source textarea to the cloned target.
+     * Transfer the text content from the source textarea to the shadowed target.
      *
-     * This method takes care to fix some quirks: 
-     *   - An empty line at the end of the content is ignored and therefore
-     *     ignored.
-     *   - More then one whitespace in a row is ignored
-     *   - Newlines are ignored
-     *  
      * @private
      * @param jQueryObject source
      * @param jQueryObject target
      */
-    ClonedTextArea.prototype.transferText_ = function( source, target ) {
+    ShadowedTextArea.prototype.transferText_ = function( source, target ) {
         var content = source.val();
-
-        // Escape the content to be used as html later on
-        content = $("<div />").text( content ).html();
-
-        /**
-         * Empty newlines at the end are ignored. A space is appended to fix
-         * this
-         */
-        if ( content.charAt( content.length -1 ) === "\n" ) {
-            content += " ";
-        }
-
-        /**
-         * Multiple whitespaces in a row are ignored therefore all whitespaces
-         * are replaced with the &nbsp; entitiy.
-         */
-        content = content.replace( / /g, "&nbsp;" );
-    
-        /**
-         * Newlines are ignored in normal html therefore they are replaced with
-         * explicit <br /> tags
-         */
-        content = content.replace( /\n/g, "<br />" );
-
-        target.html( content );
+        target.val( content );
     }
 
     /**
      * Monitor a given textarea for content changes.
      *
      * If the size of the textarea changes due to modifications of the content
-     * a height-changed event is fired on the ClonedTextArea object. The event
+     * a height-changed event is fired on the ShadowedTextArea object. The event
      * receives the newly calculated height.
      * 
      * @private
      * @param jQueryObject area
      */
-    ClonedTextArea.prototype.monitorTextArea_ = function( area ) {        
+    ShadowedTextArea.prototype.monitorTextArea_ = function( area ) {        
         area.bind(
-            "keyup.clonedtextarea",
+            "keyup.shadowedtextarea",
             jQuery.proxy( function( e ) {
                 var newContent
                   , newHeight;
@@ -208,7 +170,7 @@
                 }
 
                 this.sourceContent_ = newContent;
-                this.transferText_( area, this.clone_ );
+                this.transferText_( area, this.shadow_ );
                 
                 newHeight = this.getHeight();
                 if ( newHeight === this.sourceHeight_ ) {
@@ -223,31 +185,19 @@
     };
 
     /**
-     * Calculate the height of the cloned textarea and return it
+     * Calculate the height of the shadow textarea and return it
      *
      * @return number
      */
-    ClonedTextArea.prototype.getHeight = function() {
-        var height;
-
-        // In order to calculate the height of the element it needs to be added
-        // to the document.
-        $("body").append( this.clone_ );
-
-        height = this.clone_.height();
-        
-        // Remove the element from the dom again
-        this.clone_.detach();
-
-        return height;
+    ShadowedTextArea.prototype.getHeight = function() {
     };
 
     jQuery.fn.fluidtextarea = function() {
         this.filter( "textarea" ).each( function() {
             var target = $(this)
-              , clone;
+              , shadow;
 
-            if ( target.data( "fluidtextarea-clone" ) ) {
+            if ( target.data( "fluidtextarea-shadow" ) ) {
                 // Fluidtextarea is already initialized. Ignore.
                 return;
             }
@@ -255,14 +205,14 @@
             // Scrollbars should no longer be displayed for the fluidtextarea
             target.css( "overflow", "hidden" );
 
-            clone = new ClonedTextArea( target );
-            target.data( "fluidtextarea-clone", clone );
+            shadow = new shadowdTextArea( target );
+            target.data( "fluidtextarea-shadow", shadow );
             
             // Set the needed height initially
-            target.height( clone.getHeight() );
+            target.height( shadow.getHeight() );
 
             // Monitor height changes to adapt to them
-            $(clone).bind( 
+            $(shadow).bind( 
                 "height-changed", 
                 function( e, height ) {
                     target.height( height );
