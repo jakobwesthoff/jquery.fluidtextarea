@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Manual testing area</title>
+        <style type="text/css" media="screen">
+            #textarea-fixture {
+                width: 150px;
+                font-size: 12px;
+                font-family: DejaVu Sans Mono, monospace;
+            }
+        </style>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.js"></script>
+        <script type="text/javascript" src="../src/jquery.fluidtextarea.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $("#textarea-fixture").fluidtextarea();
+            });
+        </script>
+    </head>
+    <body>
+        <h1>jquery.fluidtextarea</h1>
+        <form action="#">
+            <fieldset>
+                <textarea id="textarea-fixture" cols="15"></textarea>
+            </fieldset>
+        </form>
+    </body>
+</html>
