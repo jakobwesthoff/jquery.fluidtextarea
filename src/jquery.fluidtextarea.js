@@ -86,7 +86,18 @@
         var shadow = $( "<textarea />" );
 
         this.transferStyles_( source, shadow );
-        shadow.css( "display", "none" );
+
+        // The shadow will be part of the dom, therefore it should be
+        // invisible. However the size of a textarea can only be measured if
+        // display isn't set to none. Therefore it is just moved outside of the
+        // visual area.
+        shadow.css( "position", "absolute" );
+        shadow.css( "top", "-10000px" );
+        shadow.css( "left", "-10000px" );
+
+        // Zero padding is needed, as it otherwise interferes with the height
+        // calculation using the scroll position/height.
+        shadow.css( "padding", "0px" );
 
         this.transferText_( source, shadow );
         
@@ -197,12 +208,15 @@
     };
 
     /**
-     * Calculate the height of the shadow textarea and return it
+     * Calculate the height the shadowed textarea needs to have in order for
+     * all text to fit in.
      *
      * @return number
      */
     ShadowedTextArea.prototype.getHeight = function() {
-        return 500;
+        // Scroll down the shadow textarea to the bottom.
+        this.shadow_.scrollTop( 999999 );
+        return this.shadow_.height() + this.shadow_.scrollTop();
     };
 
     jQuery.fn.fluidtextarea = function() {
@@ -222,7 +236,7 @@
             target.data( "fluidtextarea-shadow", shadow );
             
             // Set the needed height initially
-            //target.height( shadow.getHeight() );
+            target.height( shadow.getHeight() );
 
             // Monitor height changes to adapt to them
             $(shadow).bind( 
