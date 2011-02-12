@@ -65,6 +65,8 @@
          * @type jQueryObject
          */
         this.shadow_ = this.createShadow_( source );
+        
+        this.insertShadowBeforeTextarea_();
 
         this.monitorTextArea_( source );
     }
@@ -81,8 +83,10 @@
      * @returns jQueryObject
      */
     ShadowedTextArea.prototype.createShadow_ = function( source ) {
-        var shadow = $( "<div />" );
+        var shadow = $( "<textarea />" );
+
         this.transferStyles_( source, shadow );
+        shadow.css( "display", "none" );
 
         this.transferText_( source, shadow );
         
@@ -146,6 +150,14 @@
     }
 
     /**
+     * Insert the shadow element into the dom tree, just before the given
+     * target element.
+     */
+    ShadowedTextArea.prototype.insertShadowBeforeTextarea_ = function() {
+        this.source_.before( this.shadow_ );
+    }
+
+    /**
      * Monitor a given textarea for content changes.
      *
      * If the size of the textarea changes due to modifications of the content
@@ -190,6 +202,7 @@
      * @return number
      */
     ShadowedTextArea.prototype.getHeight = function() {
+        return 500;
     };
 
     jQuery.fn.fluidtextarea = function() {
@@ -205,11 +218,11 @@
             // Scrollbars should no longer be displayed for the fluidtextarea
             target.css( "overflow", "hidden" );
 
-            shadow = new shadowdTextArea( target );
+            shadow = new ShadowedTextArea( target );
             target.data( "fluidtextarea-shadow", shadow );
             
             // Set the needed height initially
-            target.height( shadow.getHeight() );
+            //target.height( shadow.getHeight() );
 
             // Monitor height changes to adapt to them
             $(shadow).bind( 
