@@ -6,19 +6,19 @@
             this.shadow = this.textarea.prev();            
         },
         "contentFixture": function() {
-            return {
-                "foobar": 30,
-                "foo\nbar": 30,
-                "foo\nbar\nbaz": 45,
-                "foo\n": 30,
-                "\n": 30,
-                "foo bar baz": 75,
-                "fooooooooooooo": 75,
-                "fooooooooooooo baaaaaaaaaaar": 150,
-                "fo  ba": 30,
-                "fo   bar": 45,
-                "fo   bar ": 60
-            };
+            return [
+                "foobar",
+                "foo\nbar",
+                "foo\nbar\nbaz",
+                "foo\n",
+                "\n",
+                "foo bar baz",
+                "fooooooooooooo",
+                "fooooooooooooo baaaaaaaaaaar",
+                "fo  ba",
+                "fo   bar",
+                "fo   bar "
+            ];
         }
     });
 
@@ -75,6 +75,10 @@
             ( position.top + size.height <= 0 ) && ( position.left + size.width ) <= 0,
             "Shadow element is positioned outside of the visual area"
         );
+
+        // Remove the element again, as it is not cleaned up by qunit
+        // automatically
+        this.shadow.remove();
     });
 
     test( "Shadow has same content after initialization", {
@@ -98,42 +102,79 @@
     test( "Size calculation of shadow area is correct", function() {
         var shadowedTextArea
           , shadow
-          , contentSets
-          , expectedHeight;
+          , contents
+          , content
+          , calculatedHeight
+          , i;
 
         shadowedTextArea = this.textarea.data( "fluidtextarea-shadow" );
         shadow = shadowedTextArea.shadow_;
 
-        contentSets = this.contentFixture();
-        for ( content in contentSets ) if ( contentSets.hasOwnProperty( content ) ) {
-            expectedHeight = contentSets[content];
+        contents = this.contentFixture();
+        for ( i = 0; i < contents.length; ++i ) {
+            content = contents[i];
             
             shadow.val( content );
-            
+            calculatedHeight = shadowedTextArea.getHeight();
+
+            // Set the shadow area to the calculatedHeight an check if it still
+            // needs to be scrolled.
+            shadow.height( calculatedHeight );
+
+            // Check if the textarea still needs scrolling
+            shadow.scrollTop( 999999 );
             same(
-                shadowedTextArea.getHeight(), expectedHeight,
-                "Size of content '" + content + "' is calculated correctly"
+                shadow.scrollTop(),
+                0,
+                "Text fits into textarea of calculated height"
             );
         }
     });
 
     test( "Text area adapts size to input", function() {
-        var contentSets;
+        var contents
+          , content
+          , calculatedHeight
+          , i;
 
-        contentSets = this.contentFixture();
-        for ( content in contentSets ) if ( contentSets.hasOwnProperty( content ) ) {
-            expectedHeight = contentSets[content];
+        contents = this.contentFixture();
+        for ( i = 0; i < contents.length; ++i ) {
+            content = contents[i];
             
             this.textarea.val( content );
+            
             // The keyup event is monitored to detect changes therefore it
             // needs to triggered in order for the textarea to update its
             // height.
             this.textarea.trigger( "keyup" );
-            
+
+            // Check if the textarea still needs scrolling
+            this.textarea.scrollTop( 999999 );
             same(
-                this.textarea.height(), expectedHeight,
-                "Size of content '" + content + "' is adapted to correctly"
+                this.textarea.scrollTop(),
+                0,
+                "Text fits into textarea of calculated height"
             );
         }
+    });
+
+    test( "Text area reduces size to fit input", function() {
+        var firstHeight
+          , secondHeight;
+
+        this.textarea.val( "foo bar baz" );
+        this.textarea.trigger( "keyup" );
+        
+        firstHeight = this.textarea.height();
+
+        this.textarea.val( "foo" );
+        this.textarea.trigger( "keyup" );
+        
+        secondHeight = this.textarea.height();
+
+        ok(
+            firstHeight > secondHeight,
+            "Textarea reduced size to fit smaller content"
+        );
     });
 })( jQuery, jQuery );
