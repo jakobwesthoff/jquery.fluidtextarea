@@ -116,4 +116,24 @@
             );
         }
     });
+
+    test( "Text area adapts size to input", function() {
+        var contentSets;
+
+        contentSets = this.contentFixture();
+        for ( content in contentSets ) if ( contentSets.hasOwnProperty( content ) ) {
+            expectedHeight = contentSets[content];
+            
+            this.textarea.val( content );
+            // The keyup event is monitored to detect changes therefore it
+            // needs to triggered in order for the textarea to update its
+            // height.
+            this.textarea.trigger( "keyup" );
+            
+            same(
+                this.textarea.height(), expectedHeight,
+                "Size of content '" + content + "' is adapted to correctly"
+            );
+        }
+    });
 })( jQuery, jQuery );
