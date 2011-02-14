@@ -34,8 +34,9 @@
     test( "Shadow created and inserted", function() {
         var shadowedTextArea;
         
-        ok(
-            this.shadow.length === 1,
+        same(
+            this.shadow.length,
+            1,
             "Textarea has a previous sibling"
         );
         ok(
@@ -48,8 +49,9 @@
         );
         
         shadowedTextArea = this.textarea.data( "fluidtextarea-shadow" );
-        ok(
-            shadowedTextArea.getHeight() === this.textarea.height(),
+        same(
+            this.textarea.height(),
+            shadowedTextArea.getHeight(),
             "Initial height of textarea is set correctly"
         );
     });
