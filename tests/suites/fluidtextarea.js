@@ -101,6 +101,26 @@
         );
     });
 
+    test( "Text area reduces size to fit input", function() {
+        var firstHeight
+          , secondHeight;
+
+        this.textarea.val( "foo bar baz" );
+        this.textarea.trigger( "keyup" );
+        
+        firstHeight = this.textarea.height();
+
+        this.textarea.val( "foo" );
+        this.textarea.trigger( "keyup" );
+        
+        secondHeight = this.textarea.height();
+
+        ok(
+            firstHeight > secondHeight,
+            "Textarea reduced size to fit smaller content"
+        );
+    });
+
     /**
      * ATTENTION: If this test fails all tests after this one can not be
      * trusted to produce accurate results!
@@ -189,25 +209,5 @@
                 "Text fits into textarea of calculated height"
             );
         }
-    });
-
-    test( "Text area reduces size to fit input", function() {
-        var firstHeight
-          , secondHeight;
-
-        this.textarea.val( "foo bar baz" );
-        this.textarea.trigger( "keyup" );
-        
-        firstHeight = this.textarea.height();
-
-        this.textarea.val( "foo" );
-        this.textarea.trigger( "keyup" );
-        
-        secondHeight = this.textarea.height();
-
-        ok(
-            firstHeight > secondHeight,
-            "Textarea reduced size to fit smaller content"
-        );
     });
 })( jQuery, jQuery );
