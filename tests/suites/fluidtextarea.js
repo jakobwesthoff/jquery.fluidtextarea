@@ -210,4 +210,39 @@
             );
         }
     });
+
+    /**
+     * IE6/7 does have a bug where it does not calculate the scrollTop/height
+     * value correctly if it has an implicit border definition on a textarea
+     * (aka. no border property is explicitly set).
+     * In order to make sure the height calculation works in this case as well
+     * this test makes sure the text does not need to be scrolled, even if this
+     * border definition is missing.
+     */
+    test( "Size calculation fits textarea with implicit border definition", {
+        setup: function() {}
+    }, function() {
+        var textarea;
+        
+        textarea = $( "#textarea-fixture" );
+        textarea.css( "border", "" );
+
+        textarea.fluidtextarea();
+        textarea.val( "foooooooooo baaaaaaaaaaar baaaaaaaaaz" );
+        
+        textarea.scrollTop( 999999 );
+        ok(
+            textarea.scrollTop() > 0,
+            "Textarea needs scrolling before resizing"
+        )
+
+        textarea.trigger( "keyup" );
+
+        textarea.scrollTop( 999999 );
+        same(
+            textarea.scrollTop(),
+            0,
+            "Textarea is resized to fit text"
+        )
+    });
 })( jQuery, jQuery );
