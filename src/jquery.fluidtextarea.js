@@ -99,6 +99,13 @@
         // calculation using the scroll position/height.
         shadow.css( "padding", "0px" );
 
+        // IE6 and IE7 produce wrong height/scrollTop calculations if no border
+        // property is defined on the textarea. It seems the default border is
+        // shown and does therefore influence the height of the textarea, but
+        // its size is not integrated into the calculation. Therefore the
+        // border is explicitely disabled.
+        shadow.css( "border", "none" );
+
         this.transferText_( source, shadow );
         
         return shadow;
