@@ -99,6 +99,37 @@
         );
     });
 
+    /**
+     * ATTENTION: If this test fails all tests after this one can not be
+     * trusted to produce accurate results!
+     */
+    test( "scrollTop value of textareas is calculated correctly", function() {
+        var textarea;
+        
+        textarea = $( "<textarea />" )
+            .height( 3 )
+            .val( 
+                new Array( 423 ).join( "foo" )
+            )
+            .appendTo( 
+                $( "#qunit-fixture" )
+            );
+
+        textarea.scrollTop( 23 );
+        same(
+            textarea.scrollTop(),
+            23,
+            "scrollTop calculation incorrect: ATTENTION: THIS DOES AFFECT THE CORRECTNESS OF ALL FOLLOWING TESTS."
+        );
+
+        textarea.scrollTop( 0 );
+        same(
+            textarea.scrollTop(),
+            0,
+            "scrollTop calculation incorrect: ATTENTION: THIS DOES AFFECT THE CORRECTNESS OF ALL FOLLOWING TESTS."
+        );
+    });
+
     test( "Size calculation of shadow area is correct", function() {
         var shadowedTextArea
           , shadow
